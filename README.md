@@ -38,3 +38,6 @@ desc = spms.sphere_descriptors
 ```
 
 More details for the usage of SPMS and machine learning application of SPMS, please check two Jupyter Notebooks in **Example** folder.
+
+## Contact us
+Email: hxchem@zju.edu.cn; licheng_xu@zju.edu.cn
