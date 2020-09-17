@@ -8,7 +8,7 @@ This project provides the key script to generate SPMS based on MDL SDF files (.s
 
 ## Dependences
 
-All third-party python packages for generating SPMS are just [numpy](https://numpy.org/) and [rdkit](http://rdkit.org/).
+All third-party python packages required for generating SPMS are just [numpy](https://numpy.org/) and [rdkit](http://rdkit.org/).
 
 In order to run Jupyter Notebook for machine learning application demonstration, several machine learning, deep learning and visualazation third-party python packages are required.
 
@@ -26,7 +26,7 @@ The version of dependent third-party packages above are recommended. We suggest 
 ## Usage
 The core script to generate SPMS is [SPMS.py](https://github.com/licheng-xu-echo/SPMS/blob/master/SPMS.py), which is very easy to understand and use for its few code lines.
 
-There is an example file [L-proline](https://github.com/licheng-xu-echo/SPMS/blob/master/Example/sdf_examples/L-proline.sdf) for demonstration. The chiral carbon is selected as the key atom which will be placed at the origin of cartesian coordinate system. Several key atoms to generate SPMS is also supported. If key atom is not defined, **the center of  mass** will be placed at the origin of cartesian coordinate system. The resolution of SPMS is controlled by **desc_n** and **desc_m**. If **sphere_radius** paramter is not set, the smallest radius to hold the whole molecule will be calulated and used.
+There is an example file [L-proline](https://github.com/licheng-xu-echo/SPMS/blob/master/Example/sdf_examples/L-proline.sdf) for demonstration. The chiral carbon is selected as the key atom which will be placed at the origin of cartesian coordinate system. Several key atoms to generate SPMS is also supported. If key atom is not defined, **the center of  mass** will be placed at the origin of cartesian coordinate system. The resolution of SPMS is controlled by **desc_n** and **desc_m**. If **sphere_radius** paramter is not set, the smallest radius to hold the whole molecule will be calulated and used. The simplest usage is just like below:
 ```
 from SPMS import SPMS
 ## Initiaze the SPMS
