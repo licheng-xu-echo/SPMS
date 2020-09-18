@@ -221,7 +221,7 @@ class SPMS():
             gamma = -gamma
         new_xyz_coord2 = new_xyz_coord1.dot(RX_gamma_M(gamma))    ### put one point at the negative y axis
         
-        ### 绕y轴转 rotate around y axis
+        ### rotate around y axis
         third_point_coord = np.mean(new_xyz_coord2[third_point_index_list],axis=0)[0:3]
         Xv3 = third_point_coord.copy()
         Xv3_xz = Xv3.copy()
