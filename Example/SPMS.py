@@ -174,7 +174,7 @@ class SPMS():
         return NewCoord2,New3Points        
         
     def _Customized_Coord_Standard(self,positions,first_point_index_list,second_point_index_list,third_point_index_list):
-        def T_M(a):            ### 平移
+        def T_M(a):            ### translation
             T_M = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [
                            0, 0, 1, 0], [a[0], a[1], a[2], 1]])
             return T_M
@@ -209,7 +209,7 @@ class SPMS():
         
         if Xv_xy[0] > 0:
             alpha = -alpha
-        new_xyz_coord = OldCoord.dot(T_M(a))     ### 完成平移
+        new_xyz_coord = OldCoord.dot(T_M(a))     ### translation done
         new_xyz_coord1 = new_xyz_coord.dot(RZ_alpha_M(alpha))
         first_point_coord1 = np.mean(new_xyz_coord1[first_point_index_list],axis=0)[0:3]
         second_point_coord1 = np.mean(new_xyz_coord1[second_point_index_list],axis=0)[0:3]
@@ -219,9 +219,9 @@ class SPMS():
         gamma = np.pi-np.arccos(Xv1_yz[0:3].dot(Y_v_pos)/((np.sqrt(Xv1_yz[0:3].dot(Xv1_yz[0:3])))*(np.sqrt(Y_v_pos[0:3].dot(Y_v_pos[0:3])))))
         if Xv1[2] < 0:
             gamma = -gamma
-        new_xyz_coord2 = new_xyz_coord1.dot(RX_gamma_M(gamma))    ###将一个点放在y轴负方向
+        new_xyz_coord2 = new_xyz_coord1.dot(RX_gamma_M(gamma))    ### put one point at the negative y axis
         
-        ### 绕y轴转
+        ### rotate around y axis
         third_point_coord = np.mean(new_xyz_coord2[third_point_index_list],axis=0)[0:3]
         Xv3 = third_point_coord.copy()
         Xv3_xz = Xv3.copy()
