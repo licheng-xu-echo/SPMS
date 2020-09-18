@@ -14,14 +14,14 @@ In order to run Jupyter Notebook for machine learning application demonstration,
 
 ```
 python>=3.6
-numpy=1.17.4
-rdkit=2019.03.2
-pandas=1.1.1
+numpy>=1.17.4
+rdkit>=2019.03.2
+pandas>=1.1.1
 tensorflow-gpu=1.14.0
-scikit-learn=0.22
-seaborn=0.9.0
+scikit-learn>=0.22
+seaborn>=0.9.0
 ```
-The version of dependent third-party packages above are recommended. We suggest using [Anaconda](https://www.anaconda.com/) to install python3.6 or higher version, as conda and pip together make the installation of these dependences much easier.
+The version of dependent third-party packages above are recommended. The virsion of TensorFlow should be **1.X**. We suggest using [Anaconda](https://www.anaconda.com/) to install python3.6 or higher version, as conda and pip together make the installation of these dependences much easier.
 
 ## Usage
 The core script to generate SPMS is [SPMS.py](https://github.com/licheng-xu-echo/SPMS/blob/master/SPMS.py), which is very easy to understand and use for its few code lines.
