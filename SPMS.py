@@ -11,7 +11,7 @@ import numpy as np
 from copy import deepcopy
 precision = 8
 class SPMS():
-    def __init__(self,sdf_file,key_atom_num=None,sphere_radius=None,desc_n=20,desc_m=20,
+    def __init__(self,sdf_file,key_atom_num=None,sphere_radius=None,desc_n=40,desc_m=40,
                  orientation_standard=True,first_point_index_list=None,second_point_index_list=None,third_point_index_list=None):
         
         self.sdf_file = sdf_file
