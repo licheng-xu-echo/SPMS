@@ -1,5 +1,7 @@
-![SPMS](https://github.com/licheng-xu-echo/SPMS/blob/master/Fig/Graphical%20Abstract.jpg)
+# SPMS
 A Molecular Stereostructure Descriptor based on Spherical Projection
+
+![SPMS](https://github.com/licheng-xu-echo/SPMS/blob/master/Fig/Graphical%20Abstract.jpg)
 
 ## Introduction
 Description of molecular stereostructure is critical for the machine learning prediction of asymmetric catalysis. We develop a spherical projection descriptor of molecular stereostructure (SPMS), which allows precise representation of the molecular vdW surface. 
