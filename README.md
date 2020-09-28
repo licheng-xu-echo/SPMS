@@ -1,4 +1,4 @@
-# SPMS
+![SPMS](https://github.com/licheng-xu-echo/SPMS/blob/master/Fig/Graphical%20Abstract.jpg)
 A Molecular Stereostructure Descriptor based on Spherical Projection
 
 ## Introduction
