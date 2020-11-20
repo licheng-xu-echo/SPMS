@@ -6,6 +6,8 @@ Description of molecular stereostructure is critical for the machine learning pr
 
 This project provides the key script to generate SPMS based on MDL SDF files (.sdf, **V2000** version). In addition, we provide two Jupyter Notebooks in **Example** folder to demonstrate how to generate SPMS from SDF files and how to use it for machine learning application on the dataset of asymmetric thiol addition to N-acylimines from Denmark's recent work. ([*Science* **2019**, *363*, eaau5631.](https://science.sciencemag.org/content/363/6424/eaau5631))
 
+This work is published at [*Synlett*](http://doi.org/10.1055/s-0040-1705977). If this project was used in your work, please cite this [paper](http://doi.org/10.1055/s-0040-1705977).
+
 ## Dependences
 
 All third-party python packages required for generating SPMS are just [numpy](https://numpy.org/) and [rdkit](http://rdkit.org/).
@@ -38,6 +40,9 @@ desc = spms.sphere_descriptors
 ```
 
 More details for the usage of SPMS and machine learning application of SPMS, please check two Jupyter Notebooks in **Example** folder.
+
+## How to cite
+Please check at this [website](http://doi.org/10.1055/s-0040-1705977).
 
 ## Contact us
 Email: hxchem@zju.edu.cn; licheng_xu@zju.edu.cn
