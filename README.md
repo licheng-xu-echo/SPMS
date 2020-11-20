@@ -41,6 +41,8 @@ desc = spms.sphere_descriptors
 
 More details for the usage of SPMS and machine learning application of SPMS, please check two Jupyter Notebooks in **Example** folder.
 
+We also provide a [website](http://www.spmsgen.net/) for **drawing SPMS figures** for chemical interpretation.
+
 ## How to cite
 Please check at this [website](http://doi.org/10.1055/s-0040-1705977).
 
