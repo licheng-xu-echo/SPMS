@@ -1,5 +1,5 @@
 # SPMS
-A Molecular Stereostructure Descriptor based on Spherical Projection
+This is a repository for paper: [*A Molecular Stereostructure Descriptor based on Spherical Projection*](https://www.thieme-connect.de/products/ejournals/abstract/10.1055/s-0040-1705977)
 
 ## Introduction
 Description of molecular stereostructure is critical for the machine learning prediction of asymmetric catalysis. We develop a spherical projection descriptor of molecular stereostructure (SPMS), which allows precise representation of the molecular vdW surface. 
