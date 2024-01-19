@@ -1,3 +1,3 @@
 # Note
 
-To ensure code reproducibility, the 'SPMS.py' file in this directory has not been altered, whereas the script in the parent directory has been subjected to optimization.
+To ensure the reproducibility of the code, the 'SPMS.py' file within this directory remains unchanged, while the 'SPMS.py' in the parent directory has undergone some optimization.
