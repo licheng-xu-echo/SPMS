@@ -10,6 +10,7 @@ from rdkit import Chem
 import numpy as np
 from ase.io import read as ase_read
 from copy import deepcopy
+from rot import tript2fix_orit
 precision = 8
 class SPMS():
     def __init__(self,sdf_file=None,xyz_file=None,key_atom_num=None,sphere_radius=None,desc_n=40,desc_m=40,
@@ -30,7 +31,7 @@ class SPMS():
             Descriptor's latitudinal resolution
         desc_m: int
             Descriptor's longitudinal resolution
-        orientation_standard: bool
+        orientation_standard: True, False or 'Customized'
             if the molecular orientation is standardized
         
         Returns
@@ -133,132 +134,18 @@ class SPMS():
                 third_atom_position = third_atom_position.reshape(1,3)
                 append_positions = np.concatenate([origin_positions,key_atom_position,second_atom_position,third_atom_position])
 
-                
-        OldCoord = np.c_[append_positions, np.ones(len(append_positions))]
-        
-        first_atom_coord = OldCoord[-3][0:3]
-        
-        second_atom_coord = OldCoord[-2][0:3]
-        Xv =  second_atom_coord-first_atom_coord
-        Xv_xy = Xv.copy()
-        Xv_xy[2] = 0
-        X_v = np.array([Xv[0],0,0])
-        Z_v = np.array([0,0,1])
-        alpha = np.arccos(Xv_xy[0:3].dot(
-                X_v[0:3])/(np.sqrt(Xv_xy[0:3].dot(Xv_xy[0:3]))*np.sqrt(X_v[0:3].dot(X_v[0:3]))))
-        beta = np.arccos(Xv[0:3].dot(
-                Z_v)/(np.sqrt(Xv[0:3].dot(Xv[0:3]))*np.sqrt(Z_v.dot(Z_v))))
-        
-        if Xv_xy[1]*Xv_xy[0] > 0:
-            alpha = -alpha
-        if Xv[0] < 0:
-            beta = -beta    
-        def T_M(a):
-            T_M = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [
-                           0, 0, 1, 0], [a[0], a[1], a[2], 1]])
-            return T_M
-        
-        def RZ_alpha_M(alpha):
-            RZ_alpha_M = np.array([[np.cos(alpha), np.sin(
-                alpha), 0, 0], [-np.sin(alpha), np.cos(alpha), 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
-            return RZ_alpha_M
-        
-        def RY_beta_M(beta):
-            RY_beta_M = np.array([[np.cos(beta), 0, np.sin(beta), 0], [
-                                 0, 1, 0, 0], [-np.sin(beta), 0, np.cos(beta), 0], [0, 0, 0, 1]])
-            return RY_beta_M
-        
-        a = -first_atom_coord
-
-        new_xyz_coord1 = OldCoord.dot(T_M(a)).dot(
-            RZ_alpha_M(alpha)).dot(RY_beta_M(beta))    
-
-                
-        third_atom_coord = new_xyz_coord1[-1][0:3]
-
-        second_atom_coord = new_xyz_coord1[-2][0:3]
-        Xy = third_atom_coord - second_atom_coord
-        Y_v = np.array([0, 1, 0])
-        gamma = np.arccos(Xy.dot(Y_v)/(np.sqrt(Xy.dot(Xy))*np.sqrt(Y_v.dot(Y_v))))
-
-        if Xy[0] < 0:
-            gamma = -gamma
-        NewCoord = new_xyz_coord1.dot(RZ_alpha_M(gamma))
-        
-        third_atom_coord = NewCoord[-1][0:3]
-        third_XY = third_atom_coord[0:2]
-        axis_y_2d = np.array([0,1])
-        sita = np.arccos(third_XY.dot(axis_y_2d)/(np.sqrt(third_XY.dot(third_XY))*np.sqrt(axis_y_2d.dot(axis_y_2d))))
-
-        if third_XY[0]*third_XY[1] < 0:
-            sita = -sita
-        NewCoord0 = NewCoord.dot(RZ_alpha_M(sita))
-        NewCoord1 = np.around(np.delete(NewCoord0, 3, axis=1), decimals=self.precision)   
-        
-        NewCoord2 = NewCoord1[:-3]
-        New3Points = NewCoord1[-3:]
-
-        return NewCoord2,New3Points        
+        new_positions = tript2fix_orit(append_positions,[len(origin_positions)],[len(origin_positions)+1],[len(origin_positions)+2],axis='z',plane='yz')
+        std_positions = new_positions[:-3]
+        std_3points = new_positions[-3:]
+        return std_positions,std_3points        
         
     def _Customized_Coord_Standard(self,positions,first_point_index_list,second_point_index_list,third_point_index_list):
-        def T_M(a):            ### translation
-            T_M = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [
-                           0, 0, 1, 0], [a[0], a[1], a[2], 1]])
-            return T_M
-        
-        def RZ_alpha_M(alpha):
-            RZ_alpha_M = np.array([[np.cos(alpha), np.sin(
-                alpha), 0, 0], [-np.sin(alpha), np.cos(alpha), 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
-            return RZ_alpha_M
-        
-        def RY_beta_M(beta):
-            RY_beta_M = np.array([[np.cos(beta), 0, np.sin(beta), 0], [
-                                 0, 1, 0, 0], [-np.sin(beta), 0, np.cos(beta), 0], [0, 0, 0, 1]])
-            return RY_beta_M
-        def RX_gamma_M(gamma):
-            RX_gamma_M = np.array([[1,0,0,0],[0,np.cos(gamma),np.sin(gamma),0],[0,-np.sin(gamma),np.cos(gamma),0],[0,0,0,1]])
-            return RX_gamma_M
         
         first_point_index_list = [item-1 for item in first_point_index_list]
         second_point_index_list = [item-1 for item in second_point_index_list]
         third_point_index_list = [item-1 for item in third_point_index_list]
-        OldCoord = np.c_[positions, np.ones(len(positions))]
-        first_point_coord = np.mean(OldCoord[first_point_index_list],axis=0)[0:3]
-        second_point_coord = np.mean(OldCoord[second_point_index_list],axis=0)[0:3]
-        Xv =  second_point_coord-first_point_coord
-        Xv_xy = Xv.copy()
-        Xv_xy[2] = 0
-        Y_v_neg = np.array([0,-1,0])
-        Y_v_pos = np.array([0,1,0])
-        alpha = np.arccos(Xv_xy[0:3].dot(Y_v_neg[0:3])/((np.sqrt(Xv_xy[0:3].dot(Xv_xy[0:3])))*(np.sqrt(Y_v_neg[0:3].dot(Y_v_neg[0:3])))))
-        
-        a = -first_point_coord
-        
-        if Xv_xy[0] > 0:
-            alpha = -alpha
-        new_xyz_coord = OldCoord.dot(T_M(a))     ### translation done
-        new_xyz_coord1 = new_xyz_coord.dot(RZ_alpha_M(alpha))
-        first_point_coord1 = np.mean(new_xyz_coord1[first_point_index_list],axis=0)[0:3]
-        second_point_coord1 = np.mean(new_xyz_coord1[second_point_index_list],axis=0)[0:3]
-        Xv1 =  second_point_coord1-first_point_coord1
-        Xv1_yz = Xv1.copy()
-        Xv1_yz[0] = 0
-        gamma = np.pi-np.arccos(Xv1_yz[0:3].dot(Y_v_pos)/((np.sqrt(Xv1_yz[0:3].dot(Xv1_yz[0:3])))*(np.sqrt(Y_v_pos[0:3].dot(Y_v_pos[0:3])))))
-        if Xv1[2] < 0:
-            gamma = -gamma
-        new_xyz_coord2 = new_xyz_coord1.dot(RX_gamma_M(gamma))    ### put one point at the negative y axis
-        
-        ### rotate around y axis
-        third_point_coord = np.mean(new_xyz_coord2[third_point_index_list],axis=0)[0:3]
-        Xv3 = third_point_coord.copy()
-        Xv3_xz = Xv3.copy()
-        Xv3_xz[1] = 0
-        X_v_pos = np.array([1,0,0])
-        beta = np.arccos(Xv3_xz[0:3].dot(X_v_pos[0:3])/((np.sqrt(Xv3_xz[0:3].dot(Xv3_xz[0:3])))*(np.sqrt(X_v_pos[0:3].dot(X_v_pos[0:3])))))
-        if Xv3[2] > 0:
-            beta = -beta
-        new_xyz_coord3 = new_xyz_coord2.dot(RY_beta_M(beta))
-        return new_xyz_coord3[:,0:3]
+        new_positions = tript2fix_orit(positions,first_point_index_list,second_point_index_list,third_point_index_list,axis='z',plane='yz')
+        return new_positions
     
     
     
@@ -277,7 +164,6 @@ class SPMS():
             new_positions = self.positions
             self.new_positions = self.positions
         
-        
         elif self.orientation_standard == "Customized":
             new_positions = self._Customized_Coord_Standard(self.positions,self.first_point_index_list,self.second_point_index_list,self.third_point_index_list)
             self.new_positions = new_positions
@@ -288,26 +174,26 @@ class SPMS():
         if self.sphere_radius == None:
             self.sphere_radius = sphere_radius
         
-    def _polar2xyz(self,r,theta,fi):
-        x = r*np.sin(theta)*np.cos(fi)
-        y = r*np.sin(theta)*np.sin(fi)
+    def _polar2xyz(self,r,theta,phi):
+        x = r*np.sin(theta)*np.cos(phi)
+        y = r*np.sin(theta)*np.sin(phi)
         z = r*np.cos(theta)
         return np.array([x,y,z])
     def _xyz2polar(self,x,y,z):
         # theta 0-pi
-        # fi 0-2pi
+        # phi 0-2pi
         r = np.sqrt(x**2+y**2+z**2)
         theta = np.arcsin(np.sqrt(x**2+y**2)/r)
-        fi = np.arctan(y/x)
+        phi = np.arctan(y/x)
         if z < 0:
             theta = np.pi - theta
         if x < 0 and y > 0:
-            fi = np.pi + fi
+            phi = np.pi + phi
         elif x < 0 and y < 0:
-            fi = np.pi + fi
+            phi = np.pi + phi
         elif x > 0 and y < 0:
-            fi = 2*np.pi + fi
-        return np.array([r,theta,fi])
+            phi = 2*np.pi + phi
+        return np.array([r,theta,phi])
     def Writegjf(self,file_path):
         try:
             new_positions = self.new_positions
@@ -347,17 +233,17 @@ class SPMS():
         N = self.desc_n
         M = self.desc_m
         delta_theta = 1/N * np.pi
-        delta_fi = 1/M * np.pi
+        delta_phi = 1/M * np.pi
         theta_screenning = np.array([item*delta_theta for item in range(1,N+1)])
         self.theta_screenning = theta_screenning
-        fi_screenning = np.array([item*delta_fi for item in range(1,M*2+1)])
-        self.fi_screenning = fi_screenning
-        PHI, THETA = np.meshgrid(fi_screenning, theta_screenning)
+        phi_screenning = np.array([item*delta_phi for item in range(1,M*2+1)])
+        self.phi_screenning = phi_screenning
+        PHI, THETA = np.meshgrid(phi_screenning, theta_screenning)
 
         x = sphere_radius*np.sin(THETA)*np.cos(PHI)
         y = sphere_radius*np.sin(THETA)*np.sin(PHI)
         z = sphere_radius*np.cos(THETA)
-        mesh_xyz = np.array([[x[i][j],y[i][j],z[i][j]] for i in range(theta_screenning.shape[0]) for j in range(fi_screenning.shape[0])])
+        mesh_xyz = np.array([[x[i][j],y[i][j],z[i][j]] for i in range(theta_screenning.shape[0]) for j in range(phi_screenning.shape[0])])
         self.mesh_xyz = mesh_xyz
         psi = np.linalg.norm(new_positions,axis=1)
         atom_vec = deepcopy(new_positions)
@@ -404,8 +290,8 @@ class SPMS():
         sphere_descriptors_reshaped = sphere_descriptors_reshaped.round(self.precision)
         
         if len(self.key_atom_num) == 1:
-            sphere_descriptors_init = np.zeros((theta_screenning.shape[0],fi_screenning.shape[0])) + sphere_radius - self.radius[self.key_atom_num[0]]
-            sphere_descriptors_final = np.min(np.concatenate([sphere_descriptors_reshaped.reshape(theta_screenning.shape[0],fi_screenning.shape[0],1),sphere_descriptors_init.reshape(theta_screenning.shape[0],fi_screenning.shape[0],1)],axis=2),axis=2)
+            sphere_descriptors_init = np.zeros((theta_screenning.shape[0],phi_screenning.shape[0])) + sphere_radius - self.radius[self.key_atom_num[0]]
+            sphere_descriptors_final = np.min(np.concatenate([sphere_descriptors_reshaped.reshape(theta_screenning.shape[0],phi_screenning.shape[0],1),sphere_descriptors_init.reshape(theta_screenning.shape[0],phi_screenning.shape[0],1)],axis=2),axis=2)
         else:
             sphere_descriptors_final = sphere_descriptors_reshaped
         
