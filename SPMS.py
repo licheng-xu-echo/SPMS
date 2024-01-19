@@ -8,13 +8,40 @@ Created on Sun May 10 15:30:18 2020
 
 from rdkit import Chem
 import numpy as np
+from ase.io import read as ase_read
 from copy import deepcopy
 precision = 8
 class SPMS():
-    def __init__(self,sdf_file,key_atom_num=None,sphere_radius=None,desc_n=40,desc_m=40,
+    def __init__(self,sdf_file=None,xyz_file=None,key_atom_num=None,sphere_radius=None,desc_n=40,desc_m=40,
                  orientation_standard=True,first_point_index_list=None,second_point_index_list=None,third_point_index_list=None):
+        '''
         
+        Parameters
+        ----------
+        sdf_file : string
+            path of .sdf file.
+        xyz_file : string
+            path of .xyz file.
+        key_atom_num: list
+            List of key atomic indices for constraining molecular orientation.
+        sphere_radius: float
+            Radius of the spherical surface enclosing the molecule.
+        desc_n: int
+            Descriptor's latitudinal resolution
+        desc_m: int
+            Descriptor's longitudinal resolution
+        orientation_standard: bool
+            if the molecular orientation is standardized
+        
+        Returns
+        -------
+        None.
+
+        '''
+        assert sdf_file != None or xyz_file != None, "You must input one of 'sdf_file' and 'xyz_file'"
+        self.precision = 8
         self.sdf_file = sdf_file
+        self.xyz_file = xyz_file
         self.sphere_radius = sphere_radius
         if key_atom_num != None:
             key_atom_num = list(np.array(key_atom_num,dtype=np.int)-1)
@@ -28,23 +55,26 @@ class SPMS():
         self.second_point_index_list = second_point_index_list
         self.third_point_index_list = third_point_index_list
 
-
         rdkit_period_table = Chem.GetPeriodicTable()
-
-        mol = Chem.MolFromMolFile(sdf_file,removeHs=False,sanitize=False)
-        conformer = mol.GetConformer()
-        positions = conformer.GetPositions()
-        atoms = mol.GetAtoms()
-        atom_types = [atom.GetAtomicNum() for atom in atoms]
-        atom_symbols = [rdkit_period_table.GetElementSymbol(item) for item in atom_types]
-        atom_weights = [atom.GetMass() for atom in atoms]
+        if self.sdf_file is not None:
+            mol = Chem.MolFromMolFile(sdf_file,removeHs=False,sanitize=False)
+            conformer = mol.GetConformer()
+            positions = conformer.GetPositions()
+            atoms = mol.GetAtoms()
+            atom_types = [atom.GetAtomicNum() for atom in atoms]
+            atom_symbols = [rdkit_period_table.GetElementSymbol(item) for item in atom_types]
+            atom_weights = [atom.GetMass() for atom in atoms]
+        elif self.xyz_file is not None:
+            ase_atoms = ase_read(self.xyz_file,format='xyz')
+            positions = ase_atoms.get_positions()
+            atom_symbols = list(ase_atoms.symbols)
+            atom_types = [rdkit_period_table.GetAtomicNumber(sym) for sym in atom_symbols]
+            atom_weights = [rdkit_period_table.GetAtomicWeight(sym) for sym in atom_symbols]
+            
         
         atom_weights = np.array([atom_weights,atom_weights,atom_weights]).T
-
         weighted_pos = positions*atom_weights
-
-        weight_center = np.round(weighted_pos.sum(axis=0)/atom_weights.sum(axis=0)[0],decimals=precision)
-
+        weight_center = np.round(weighted_pos.sum(axis=0)/atom_weights.sum(axis=0)[0],decimals=self.precision)
         radius = np.array([rdkit_period_table.GetRvdw(item) for item in atom_types]) # van der Waals radius
         volume = 4/3*np.pi*pow(radius,3)
         self.positions = positions
@@ -71,8 +101,6 @@ class SPMS():
             third_atom_position = deepcopy(origin_positions[third_key_atom_index])
             third_atom_position = third_atom_position.reshape(1,3)
             append_positions = np.concatenate([origin_positions,key_atom_position,second_atom_position,third_atom_position])
-
-            
         else:
             key_atom_num = self.key_atom_num
             if len(key_atom_num) == 1:
@@ -142,7 +170,6 @@ class SPMS():
         
         a = -first_atom_coord
 
-         
         new_xyz_coord1 = OldCoord.dot(T_M(a)).dot(
             RZ_alpha_M(alpha)).dot(RY_beta_M(beta))    
 
@@ -166,7 +193,7 @@ class SPMS():
         if third_XY[0]*third_XY[1] < 0:
             sita = -sita
         NewCoord0 = NewCoord.dot(RZ_alpha_M(sita))
-        NewCoord1 = np.around(np.delete(NewCoord0, 3, axis=1), decimals=precision)   
+        NewCoord1 = np.around(np.delete(NewCoord0, 3, axis=1), decimals=self.precision)   
         
         NewCoord2 = NewCoord1[:-3]
         New3Points = NewCoord1[-3:]
@@ -374,7 +401,7 @@ class SPMS():
         sphere_descriptors = sphere_radius - d_1 - d_2
         sphere_descriptors_compact = sphere_descriptors.min(1)
         sphere_descriptors_reshaped = sphere_descriptors_compact.reshape(PHI.shape)
-        sphere_descriptors_reshaped = sphere_descriptors_reshaped.round(precision)
+        sphere_descriptors_reshaped = sphere_descriptors_reshaped.round(self.precision)
         
         if len(self.key_atom_num) == 1:
             sphere_descriptors_init = np.zeros((theta_screenning.shape[0],fi_screenning.shape[0])) + sphere_radius - self.radius[self.key_atom_num[0]]
@@ -385,4 +412,29 @@ class SPMS():
         self.PHI = PHI
         self.THETA = THETA
         self.sphere_descriptors = sphere_descriptors_final
+        return self.sphere_descriptors
+    def GetQuaterDescriptors(self):
+        try:
+            sphere_descriptors = self.sphere_descriptors
+        except:
+            sphere_descriptors = self.GetSphereDescriptors()
 
+        self.left_top_desc = sphere_descriptors[:self.desc_n//2,:self.desc_m]
+        self.right_top_desc = sphere_descriptors[:self.desc_n//2,self.desc_m:]
+        self.left_bottom_desc = sphere_descriptors[self.desc_n//2:,:self.desc_m]
+        self.right_bottom_desc = sphere_descriptors[self.desc_n//2:,self.desc_m:]
+
+        self.left_top_desc_sum = self.left_top_desc.sum()
+        self.right_top_desc_sum = self.right_top_desc.sum()
+        self.left_bottom_desc_sum = self.left_bottom_desc.sum()
+        self.right_bottom_desc_sum = self.right_bottom_desc.sum()
+
+        _sum = sphere_descriptors.sum()
+
+        self.left_top_desc_partial = self.left_top_desc_sum/_sum
+        self.right_top_desc_partial = self.right_top_desc_sum/_sum
+        self.left_bottom_desc_partial = self.left_bottom_desc_sum/_sum
+        self.right_bottom_desc_partial = self.right_bottom_desc_sum/_sum
+
+        return self.left_top_desc_partial,self.right_top_desc_partial,\
+               self.left_bottom_desc_partial,self.right_bottom_desc_partial
