@@ -19,7 +19,7 @@ In order to run Jupyter Notebook for machine learning application demonstration,
 ```
 python>=3.6
 numpy>=1.17.4
-rdkit>=2019.03.2
+rdkit>=2021.9.4
 pandas>=1.1.1
 tensorflow-gpu=1.14.0
 scikit-learn>=0.22
@@ -27,22 +27,33 @@ seaborn>=0.9.0
 ase>=3.19.1
 ```
 
+## Installation
+
+Execute the command within the project directory ('SPMS' folder), to install `spms` as a package:
+
+```
+conda create -n spms python=3.6
+conda activate spms
+conda install tensorflow-gpu=1.14.0
+pip install numpy rdkit-pypi pandas scikit-learn seaborn ase
+pip install .
+```
+
 The version of dependent third-party packages above are recommended. The virsion of TensorFlow should be **1.X**. We suggest using [Anaconda](https://www.anaconda.com/) to install python3.6 or higher version, as conda and pip together make the installation of these dependences much easier.
 
 ## Usage
 
-The core script to generate SPMS is [SPMS.py](https://github.com/licheng-xu-echo/SPMS/blob/master/SPMS.py), which is very easy to understand and use for its few code lines.
+The core script to generate SPMS is [desc.py](https://github.com/licheng-xu-echo/SPMS/blob/master/spms/desc.py), which is very easy to understand and use for its few code lines.
 
 There is an example file [L-proline](https://github.com/licheng-xu-echo/SPMS/blob/master/Example/sdf_examples/L-proline.sdf) for demonstration. The chiral carbon is selected as the key atom which will be placed at the origin of cartesian coordinate system. Several key atoms to generate SPMS is also supported. If key atom is not defined, **the center of  mass** will be placed at the origin of cartesian coordinate system. The resolution of SPMS is controlled by **desc_n** and **desc_m**. If **sphere_radius** paramter is not set, the smallest radius to hold the whole molecule will be calulated and used. The simplest usage is just like below:
 
-```
-from SPMS import SPMS
+```python
+from spms.desc import SPMS
 ## Initiaze the SPMS
-spms = SPMS('./L-proline.sdf',key_atom_mum=[3],desc_n=40,desc_m=40,sphere_radius=8)
+spms_calc = SPMS('./L-proline.sdf',key_atom_mum=[3],desc_n=40,desc_m=40,sphere_radius=8)
 
 ## Calculate the SPMS
-spms.GetSphereDescriptors()
-desc = spms.sphere_descriptors
+spms_desc = spms_calc.GetSphereDescriptors()
 ```
 
 More details for the usage of SPMS and machine learning application of SPMS, please check two Jupyter Notebooks in **Example** folder.
