@@ -11,7 +11,7 @@ from rdkit import Chem
 import numpy as np
 from ase.io import read as ase_read
 from copy import deepcopy
-from rot import tript2fix_orit
+from .rot import tript2fix_orit
 precision = 8
 class SPMS():
     def __init__(self,sdf_file=None,xyz_file=None,key_atom_num=None,sphere_radius=None,desc_n=40,desc_m=40,
@@ -46,7 +46,7 @@ class SPMS():
         self.xyz_file = xyz_file
         self.sphere_radius = sphere_radius
         if key_atom_num != None:
-            key_atom_num = list(np.array(key_atom_num,dtype=np.int)-1)
+            key_atom_num = list(np.array(key_atom_num,dtype=np.int32)-1)
             self.key_atom_num = key_atom_num
         else:
             self.key_atom_num = []
