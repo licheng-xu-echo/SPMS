@@ -10,7 +10,7 @@ This project provides the key script to generate SPMS based on MDL SDF files (.s
 
 This work is published at [*Synlett*](http://doi.org/10.1055/s-0040-1705977). If this project was used in your work, please cite this [paper](http://doi.org/10.1055/s-0040-1705977).
 
-## Dependences
+## Dependence
 
 All third-party python packages required for generating SPMS are just [numpy](https://numpy.org/), [ase](https://wiki.fysik.dtu.dk/ase/index.html) and [rdkit](http://rdkit.org/).
 
@@ -29,7 +29,7 @@ ase>=3.19.1
 
 ## Installation
 
-Execute the command within the project directory ('SPMS' folder), to install `spms` as a package:
+Execute the command within the project directory ('SPMS' folder), to install dependence and install `spms` as a package:
 
 ```
 conda create -n spms python=3.6
