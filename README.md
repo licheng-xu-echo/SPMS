@@ -50,7 +50,7 @@ There is an example file [L-proline](https://github.com/licheng-xu-echo/SPMS/blo
 ```python
 from spms.desc import SPMS
 ## Initiaze the SPMS
-spms_calc = SPMS('./L-proline.sdf',key_atom_mum=[3],desc_n=40,desc_m=40,sphere_radius=8)
+spms_calc = SPMS('./L-proline.sdf',key_atom_num=[3],desc_n=40,desc_m=40,sphere_radius=8)
 
 ## Calculate the SPMS
 spms_desc = spms_calc.GetSphereDescriptors()
